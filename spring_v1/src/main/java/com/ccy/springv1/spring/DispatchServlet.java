@@ -37,7 +37,13 @@ public class DispatchServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         //模拟容器初始化过程
         //定位
+        doLoadConfig(config.getInitParameter(""));
         //加载
         //注册
+    }
+
+    private void doLoadConfig(String initParameter) {
+
+
     }
 }
