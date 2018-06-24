@@ -3,11 +3,11 @@ package com.ccy.springv1.spring.annotation;
 import java.lang.annotation.*;
 
 /**
- * @author ccy
+ * @author ccy 
  */
-@Target({ElementType.CONSTRUCTOR,ElementType.FIELD,ElementType.METHOD})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Autowired {
+public @interface Controller {
     String value() default "";
 }

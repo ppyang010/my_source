@@ -5,9 +5,9 @@ import java.lang.annotation.*;
 /**
  * @author ccy
  */
-@Target({ElementType.CONSTRUCTOR,ElementType.FIELD,ElementType.METHOD})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Autowired {
-    String value() default "";
+public @interface Service {
+    String value() default  "";
 }

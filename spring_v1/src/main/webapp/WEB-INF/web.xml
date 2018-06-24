@@ -6,6 +6,10 @@
 	<servlet>
 		<servlet-name>dispatchServlet</servlet-name>
 		<servlet-class>com.ccy.springv1.spring.DispatchServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:application.properties</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>dispatchServlet</servlet-name>
