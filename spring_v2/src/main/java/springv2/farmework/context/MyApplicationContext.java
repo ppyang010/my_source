@@ -77,10 +77,9 @@ public class MyApplicationContext  implements BeanFactory {
 
 
         //todo 使用比较坑的两次循环 因为没有解决进行依赖注入的时候依赖没有生成的情况  所以单独循环调用依赖注入方法populateBean 而不是放在getBean中
+        //理论上应该在getbean中用递归的方式处理进行依赖注入的时候依赖没有生成的情况   这个是偷懒的方式
         for(Map.Entry<String,BeanWrapper> beanWrapperEntry : this.beanWrapperMap.entrySet()){
-
             populateBean(beanWrapperEntry.getKey(),beanWrapperEntry.getValue().getOriginalInstnace());
-
         }
 
     }
