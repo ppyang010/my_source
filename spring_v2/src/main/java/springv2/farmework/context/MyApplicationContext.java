@@ -188,7 +188,7 @@ public class MyApplicationContext  implements BeanFactory {
         //因为没有处理进行依赖注入的时候 依赖对象没有实例化的问题 所有暂时注释调
 //        populateBean(beanName,instance);
 
-        //通过这样一调用，相当于给我们自己留有了可操作的空间
+        //通过这样一调用，相当于给我们自己留有了可操作的空间 后续会返回代理对象
         return this.beanWrapperMap.get(beanName).getWrapperInstance();
     }
 
