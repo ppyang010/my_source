@@ -79,7 +79,7 @@ public class DispatchServlet extends HttpServlet {
 
 
         //如果是SpringMVC会多设计一个HnandlerMapping
-        //spring mvc  url 和 method 组成的map
+        //farmework mvc  url 和 method 组成的map
         //将@RequestMapping中配置的url和一个Method关联上
         //以便于从浏览器获得用户输入的url以后，能够找到具体执行的Method通过反射去调用
         initHandlerMapping();
