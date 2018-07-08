@@ -14,7 +14,7 @@ public class MyAction {
 	
 		@RequestMapping("/index.html")
 		public void query(){
-
+			System.out.println("query");
 		}
 
 		public void test(){

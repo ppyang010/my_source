@@ -1,5 +1,6 @@
 package springv2.farmework.context;
 
+import springv2.demo.action.MyAction;
 import springv2.farmework.annotation.Autowired;
 import springv2.farmework.annotation.Controller;
 import springv2.farmework.annotation.Service;
@@ -24,14 +25,14 @@ public class MyApplicationContext  implements BeanFactory {
 
     private BeanDefinitionReader reader;
 
-    //todo 这里的三个map 的key使用的都是className  应该使用的是小写类名 或注解自定义的key
-
+    //todo 这里的key 只使用了首字母小写 没有支持自定义
     private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
 
     //使用注册式单例容器 存放单例bean
     //这里的key是className
     private Map<String,Object> beanCacheMap =new HashMap<>();
 
+    //todo 这里的key 只使用了首字母小写 没有支持自定义
     //用来存储所有的被代理过的对象
     private Map<String,BeanWrapper> beanWrapperMap = new ConcurrentHashMap<>();
 
@@ -56,6 +57,8 @@ public class MyApplicationContext  implements BeanFactory {
         //在这里自动调用getBean方法
         doAutowired();
 
+        MyAction myAction = (MyAction) getBean("myAction");
+        myAction.query();
         System.out.println();
 
     }
@@ -70,6 +73,13 @@ public class MyApplicationContext  implements BeanFactory {
             if(!entry.getValue().isLazyInit()){
                 getBean(beanName);
             }
+        }
+
+
+        //todo 使用比较坑的两次循环 因为没有解决进行依赖注入的时候依赖没有生成的情况  所以单独循环调用依赖注入方法populateBean 而不是放在getBean中
+        for(Map.Entry<String,BeanWrapper> beanWrapperEntry : this.beanWrapperMap.entrySet()){
+
+            populateBean(beanWrapperEntry.getKey(),beanWrapperEntry.getValue().getOriginalInstnace());
 
         }
 
@@ -125,7 +135,7 @@ public class MyApplicationContext  implements BeanFactory {
 
                 BeanDefinition beanDefinition = reader.registerBeanDefinitions(className);
                 if(Objects.nonNull(beanDefinition) ){
-                    this.beanDefinitionMap.put(beanDefinition.getBeanClassName(),beanDefinition);
+                    this.beanDefinitionMap.put(beanDefinition.getFactoryBeanName(),beanDefinition);
                 }
                 //如果这个类是接口的实现类 注册
                 Class<?>[] interfaces = beanClass.getInterfaces();
@@ -175,7 +185,9 @@ public class MyApplicationContext  implements BeanFactory {
         beanPostProcessor.postProcessAfterInitialization(instance,beanName);
 
         //对实例化后的bean 进行依赖注入
-        populateBean(beanName,instance);
+        //todo
+        //因为没有处理进行依赖注入的时候 依赖对象没有实例化的问题 所有暂时注释调
+//        populateBean(beanName,instance);
 
         //通过这样一调用，相当于给我们自己留有了可操作的空间
         return this.beanWrapperMap.get(beanName).getWrapperInstance();
@@ -189,6 +201,8 @@ public class MyApplicationContext  implements BeanFactory {
         //使用注册式单例 存放单例的bean
         synchronized (this){
             try {
+                //这里使用classname 而不是beanName
+                //因为根据Class才能确定一个类是否有实例
                 if(this.beanCacheMap.containsKey(className)){
                     instance = this.beanCacheMap.get(className);
                 }else {
