@@ -12,7 +12,7 @@ public class MyAction {
 		@Autowired
 		IDemoService demoService;
 	
-		@RequestMapping("/index.html")
+		@RequestMapping("/first.html")
 		public void query(){
 			System.out.println("query");
 		}

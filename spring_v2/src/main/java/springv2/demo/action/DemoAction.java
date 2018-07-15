@@ -6,6 +6,7 @@ import springv2.farmework.annotation.Autowired;
 import springv2.farmework.annotation.Controller;
 import springv2.farmework.annotation.RequestMapping;
 import springv2.farmework.annotation.RequestParam;
+import springv2.farmework.webmvc.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,10 +19,11 @@ public class DemoAction {
 	private IDemoService demoService;
 	
 	@RequestMapping("/query.json")
-	public void query(HttpServletRequest req, HttpServletResponse resp,
-                      @RequestParam("name") String name){
+	public ModelAndView query(HttpServletRequest req, HttpServletResponse resp,
+							  @RequestParam("name") String name){
 		String result = demoService.get(name);
 		System.out.println(result);
+		return null;
 //		try {
 //			resp.getWriter().write(result);
 //		} catch (IOException e) {

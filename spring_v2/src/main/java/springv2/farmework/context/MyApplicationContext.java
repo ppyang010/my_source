@@ -11,10 +11,7 @@ import springv2.farmework.context.suppot.BeanDefinitionReader;
 import springv2.farmework.core.BeanFactory;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -216,5 +213,21 @@ public class MyApplicationContext  implements BeanFactory {
         }
 
         return instance;
+    }
+
+
+
+
+    public int getBeanDefinitionCount() {
+        return beanDefinitionMap.size();
+    }
+
+
+    public String[] getBeanDefinitionNames() {
+        return  beanDefinitionMap.keySet().toArray(new String[beanDefinitionMap.size()]);
+    }
+
+    public Properties getConfig() {
+        return this.reader.getConfig();
     }
 }
