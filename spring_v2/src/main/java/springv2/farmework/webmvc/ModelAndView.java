@@ -11,4 +11,21 @@ public class ModelAndView {
        this.view = viewName;
        this.model = model;
     }
+
+
+    public String getView() {
+        return view;
+    }
+
+    public void setView(String view) {
+        this.view = view;
+    }
+
+    public Map getModel() {
+        return model;
+    }
+
+    public void setModel(Map model) {
+        this.model = model;
+    }
 }

@@ -2,6 +2,7 @@ package springv2.farmework;
 
 import springv2.farmework.annotation.Controller;
 import springv2.farmework.annotation.RequestMapping;
+import springv2.farmework.annotation.RequestParam;
 import springv2.farmework.context.MyApplicationContext;
 import springv2.farmework.webmvc.HandlerAdapter;
 import springv2.farmework.webmvc.HandlerMapping;
@@ -66,7 +67,7 @@ public class DispatchServlet extends HttpServlet {
         }
     }
 
-    private void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private void doDispatch(HttpServletRequest req, HttpServletResponse resp) throws Exception {
 
         //取得处理当前请求的controller,这里也称为hanlder,处理器,
         //根据用户的url来判断获取
@@ -80,6 +81,7 @@ public class DispatchServlet extends HttpServlet {
         HandlerAdapter ha = getHandlerAdapter(handler);
 
         //实际的处理器处理请求,返回结果视图对象
+        //这一步只是调用方法,得到返回值
         ModelAndView mv =ha.handler(req, resp, handler);
 
         //这一步才是真正的输出
@@ -87,12 +89,25 @@ public class DispatchServlet extends HttpServlet {
         processDispatchResult( resp, mv);
     }
 
-    private void processDispatchResult( HttpServletResponse resp, ModelAndView mv) {
+    private void processDispatchResult( HttpServletResponse resp, ModelAndView mv) throws Exception {
         //调用viewresolver的resolveview 方法
+        if(Objects.isNull(mv)){ return ; }
+        if(viewResolvers.isEmpty()){ return; }
+        for (ViewResolver viewResolver : viewResolvers){
+            if(!viewResolver.getViewName().equals(mv.getView())) { continue; }
+            String out = viewResolver.viewResolver(mv);
+            if(Objects.nonNull(out)){
+                resp.getWriter().write(out);
+                break;
+            }
+        }
+
     }
 
     private HandlerAdapter getHandlerAdapter(HandlerMapping handler) {
-        return null;
+        if(handlerAdapters.isEmpty()){ return null;}
+
+        return handlerAdapters.get(handler);
     }
 
     private HandlerMapping getHandler(HttpServletRequest req) {
@@ -185,8 +200,8 @@ public class DispatchServlet extends HttpServlet {
             Annotation[][] pa = handlerMapping.getMethod().getParameterAnnotations();
             for(int i = 0 ; i < pa.length; i++){
                 for(Annotation a :pa[i]){
-                    if(a instanceof RequestMapping){
-                        String paraName = ((RequestMapping) a).value();
+                    if(a instanceof RequestParam){
+                        String paraName = ((RequestParam) a).value();
                         //这里如果没有赋值我们展示跳过
                         if(!"".equals(paraName.trim())){
                             paramMapping.put(paraName, i);

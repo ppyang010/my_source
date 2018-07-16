@@ -55,7 +55,7 @@ public class MyApplicationContext  implements BeanFactory {
         doAutowired();
 
         MyAction myAction = (MyAction) getBean("myAction");
-        myAction.query();
+//        myAction.query();
         System.out.println();
 
     }
