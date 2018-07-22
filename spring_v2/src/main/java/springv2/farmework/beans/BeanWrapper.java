@@ -1,6 +1,8 @@
 package springv2.farmework.beans;
 
 
+import springv2.farmework.aop.AopConfig;
+import springv2.farmework.aop.AopProxy;
 import springv2.farmework.core.FactoryBean;
 
 /**
@@ -10,6 +12,7 @@ import springv2.farmework.core.FactoryBean;
  */
 public class BeanWrapper extends FactoryBean {
 
+    private AopProxy aopProxy  = new AopProxy();
 
     //还会用到观察者模式
     //1.支持事件响应,会有一个监听
@@ -22,8 +25,10 @@ public class BeanWrapper extends FactoryBean {
 
     public BeanWrapper(Object object) {
         //todo 暂时两者相等 未以后aop做准备
-        this.wrapperInstance = object;
         this.originalInstance = object;
+        //2018年7月22日 进行aop改造  wrapperInstance 存放带代理后的对象
+        this.wrapperInstance = aopProxy.getProxy(object);
+
     }
 
     public Object getWrapperInstance() {
@@ -46,5 +51,9 @@ public class BeanWrapper extends FactoryBean {
 
     public void setPostProcessor(BeanPostProcessor postProcessor) {
         this.postProcessor = postProcessor;
+    }
+
+    public void setAopConfig(AopConfig aopConfig) {
+        aopProxy.setAopConfig(aopConfig);
     }
 }

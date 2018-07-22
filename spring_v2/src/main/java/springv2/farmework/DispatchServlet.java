@@ -3,6 +3,7 @@ package springv2.farmework;
 import springv2.farmework.annotation.Controller;
 import springv2.farmework.annotation.RequestMapping;
 import springv2.farmework.annotation.RequestParam;
+import springv2.farmework.aop.AopProxyUtils;
 import springv2.farmework.context.MyApplicationContext;
 import springv2.farmework.webmvc.HandlerAdapter;
 import springv2.farmework.webmvc.HandlerMapping;
@@ -237,37 +238,40 @@ public class DispatchServlet extends HttpServlet {
         //但是我们再代码中写url要支持正则 所以 获取到请求req中的url 也不能直接的调用map,get 还是要遍历  这样还不如 将urlmap和method controller 包装成一个对象 遍历这个对象集合进行匹配就好了'
 
         String[] beanDefinitionNames = context.getBeanDefinitionNames();
-        for(String beanName : beanDefinitionNames){
-            Object controller = context.getBean(beanName);
-            Class<?> clazz = controller.getClass();
+        try{
+            for(String beanName : beanDefinitionNames){
+                //到了mvc层,ioc容器对外提供的只有一个getBean()方法
+                //这个getBean 有可能返回的是代理对象  代理对象中是没有原始对象的注解的 所以要进行注解判断的时候需要获取到原始对象
+                Object proxy = context.getBean(beanName);
+                Object controller = AopProxyUtils.getTargetObject(proxy);
+                Class<?> clazz = controller.getClass();
 
-            if(!clazz.isAnnotationPresent(Controller.class)){continue;}
+                if(!clazz.isAnnotationPresent(Controller.class)){continue;}
 
-            String baseUrl = "";
-            if(clazz.isAnnotationPresent(RequestMapping.class)){
-                RequestMapping annotation = clazz.getAnnotation(RequestMapping.class);
-                baseUrl = annotation.value();
+                String baseUrl = "";
+                if(clazz.isAnnotationPresent(RequestMapping.class)){
+                    RequestMapping annotation = clazz.getAnnotation(RequestMapping.class);
+                    baseUrl = annotation.value();
+                }
+
+                //扫描所有的public方法
+                Method[] methods = clazz.getMethods();
+                for(Method method : methods){
+                    if(!method.isAnnotationPresent(RequestMapping.class)){ continue; }
+
+                    //这里简单模拟spring中的配置  简单的认为是正则  spring中使用的好像是spring的表达式
+                    RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+    //                String regex = ("/" + baseUrl +requestMapping.value()).replace("/+","/");
+                    String regex = ("/" + baseUrl + requestMapping.value().replaceAll("\\*", ".*")).replaceAll("/+", "/");
+                    Pattern pattern = Pattern.compile(regex);
+                    this.handlerMappings.add(new HandlerMapping(pattern,controller,method));
+                    System.out.println("doInitHandlerMapping: " + regex + " , " + method);
+                }
+
             }
-
-            //扫描所有的public方法
-            Method[] methods = clazz.getMethods();
-            for(Method method : methods){
-                if(!method.isAnnotationPresent(RequestMapping.class)){ continue; }
-
-                //这里简单模拟spring中的配置  简单的认为是正则  spring中使用的好像是spring的表达式
-                RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
-//                String regex = ("/" + baseUrl +requestMapping.value()).replace("/+","/");
-                String regex = ("/" + baseUrl + requestMapping.value().replaceAll("\\*", ".*")).replaceAll("/+", "/");
-                Pattern pattern = Pattern.compile(regex);
-                this.handlerMappings.add(new HandlerMapping(pattern,controller,method));
-                System.out.println("doInitHandlerMapping: " + regex + " , " + method);
-
-
-            }
-
-
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
 
     }
 
